@@ -1,47 +1,65 @@
 {
   "name": "vsc-chat",
-  "displayName": "Vsc Chats",
-  "description": "Peer-2-Peer web socket chats for vscode",
+  "displayName": "VSC Chat",
+  "description": "Peer-2-Peer authenticated chat intergrated into vscode.",
   "version": "0.0.1",
+  "publisher": "notreeceharris",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
-  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onUri"
+  ],
+  "main": "./out/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "vsc-chat.helloWorld",
-        "title": "Hello World"
-      }
-    ]
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vsc-chat-sidebar-view",
+          "title": "VSC Chat",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "vsc-chat-sidebar-view": [
+        {
+          "type": "webview",
+          "id": "vsc-chat.sidebar",
+          "name": "VSC Chat",
+          "icon": "media/icon.svg",
+          "contextualTitle": "VSC Chat",
+          "webviewId": "vsc-chat-sidebar-view"
+        }
+      ]
+    }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
+    "tw": "npx tailwindcss -i tailwind.css -o ./media/style.min.css --watch --minify",
     "test": "vscode-test"
   },
   "devDependencies": {
-    "@types/vscode": "^1.85.0",
     "@types/mocha": "^10.0.6",
     "@types/node": "18.x",
+    "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "eslint": "^8.56.0",
-    "typescript": "^5.3.3",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4",
     "@vscode/test-cli": "^0.0.4",
-    "@vscode/test-electron": "^2.3.8"
+    "@vscode/test-electron": "^2.3.8",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.33",
+    "tailwindcss": "^3.4.1"
   }
 }

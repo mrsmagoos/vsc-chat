@@ -1,99 +1,108 @@
-function escapeHtml(unsafe) {
-    return unsafe.replace(/[&<"']/g, function (match) {
-        return {
-            '&': '&amp;',
-            '<': '&lt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        }[match];
+const escapeHtml = unsafe => unsafe.replace(/[&<"']/g, match => ({'&': '&amp;', '<': '&lt;', '"': '&quot;', "'": '&#39;'}[match]));
+let messagingUser;
+
+const connectToServer = async () => {
+    const ws = new WebSocket(`${webSocketUrl}/ws`);
+    return new Promise((resolve) => {
+        const timer = setInterval(() => {
+            if(ws.readyState === 1) {
+                clearInterval(timer);
+                resolve(ws);
+            }
+        }, 10);
     });
-}
+};
+
+const sendMessage = (ws, type, message, to) => {
+    const messageBody = { type, message, session, to };
+    ws.send(JSON.stringify(messageBody));
+};
+
+const toggleVisibility = (elementId, className, action) => {
+    document.getElementById(elementId).classList[action](className);
+};
+
+const clearSearchResults = () => {
+    document.getElementById('search-user-results').innerHTML = '';
+    toggleVisibility('search-user-results', 'hidden', 'add');
+    toggleVisibility('search-user-label', 'hidden', 'add');
+    toggleVisibility('search-button', 'hidden', 'remove');
+    toggleVisibility('clear-search', 'hidden', 'add');
+};
+
+const handleSendMessage = (ws, evt) => {
+    evt.preventDefault();
+
+    if (messagingUser !== undefined) {
+        const input = evt.target.querySelector('input');
+        if (input.value.trim() !== '') {
+            sendMessage(ws, 'message', input.value.trim(), messagingUser);
+            input.value = '';
+        }
+    }
+};
+
+const handleSearchUser = (ws, evt) => {
+    evt.preventDefault();
+    const input = evt.target.querySelector('input');
+    if (input.value.trim() !== '') {
+        sendMessage(ws, 'search-user', input.value.trim());
+        input.value = '';
+        toggleVisibility('search-user-results', 'hidden', 'remove');
+        toggleVisibility('search-user-label', 'hidden', 'remove');
+        toggleVisibility('search-button', 'hidden', 'add');
+        toggleVisibility('clear-search', 'hidden', 'remove');
+    }
+};
+
+const handleClearSearch = (evt) => {
+    evt.preventDefault();
+    clearSearchResults();
+};
+
+const handleSearchUserInput = (evt) => {
+    toggleVisibility('search-button', 'hidden', 'remove');
+    toggleVisibility('clear-search', 'hidden', 'add');
+};
 
 (async function() {
     const ws = await connectToServer();
+    sendMessage(ws, 'command', 'getconnections');
 
-    ws.send(JSON.stringify({
-        'type': 'command',
-        'message': 'getconnections',
-        'session': session
-    }));
+    document.getElementById('message').onsubmit = evt => handleSendMessage(ws, evt);
+    document.getElementById('search-user').onsubmit = evt => handleSearchUser(ws, evt);
+    document.getElementById('clear-search').onclick = handleClearSearch;
+    document.getElementById('search-user-input').onfocus = handleSearchUserInput;
+    document.getElementById('search-user-input').onkeydown = handleSearchUserInput;
+    document.getElementById('search-user-input').onclick = handleSearchUserInput;
 
-    document.getElementById('message').onsubmit = (evt) => {
-        evt.preventDefault();
-        const input = evt.target.querySelector('input');
-
-        if (input.value.trim() !== '') {
-            const messageBody = {
-                'type': 'message',
-                'message': input.value.trim(),
-                'session': session
-            };
-            input.value = '';
-            ws.send(JSON.stringify(messageBody));
-        }
-    };
-
-    document.getElementById('search-user').onsubmit = (evt) => {
-        evt.preventDefault();
-        const input = evt.target.querySelector('input');
-
-        if (input.value.trim() !== '') {
-            const messageBody = {
-                'type': 'search-user',
-                'message': input.value.trim(),
-                'session': session
-            };
-            input.value = '';
-
-            document.getElementById('search-user-results').classList.remove('hidden');
-            document.getElementById('search-user-results').classList.add('flex');
-
-            document.getElementById('search-user-label').classList.remove('hidden');
-            document.getElementById('search-user-label').classList.add('flex');
-
-            document.getElementById('search-button').classList.add('hidden');
-            document.getElementById('clear-search').classList.remove('hidden');
-
-            ws.send(JSON.stringify(messageBody));
-        }
-    };
-
-    document.getElementById('clear-search').onclick = (evt) => {
-        evt.preventDefault();
-
-        document.getElementById('search-user-results').innerHTML = '';
-
-        document.getElementById('search-user-results').classList.remove('flex');
-        document.getElementById('search-user-results').classList.add('hidden');
-
-        document.getElementById('search-user-label').classList.remove('flex');
-        document.getElementById('search-user-label').classList.add('hidden');
-
-        document.getElementById('search-button').classList.remove('hidden');
-        document.getElementById('clear-search').classList.add('hidden');
-    }
-
-    document.getElementById('search-user-input').onfocus = (evt) => {
-        document.getElementById('search-button').classList.remove('hidden');
-        document.getElementById('clear-search').classList.add('hidden');
-    }
-
-    document.getElementById('search-user-input').onkeydown = (evt) => {
-        document.getElementById('search-button').classList.remove('hidden');
-        document.getElementById('clear-search').classList.add('hidden');
-    }
-
-    document.getElementById('search-user-input').onclick = (evt) => {
-        document.getElementById('search-button').classList.remove('hidden');
-        document.getElementById('clear-search').classList.add('hidden');
-    }
     
-
     ws.onmessage = (webSocketMessage) => {
         const messageBody = JSON.parse(webSocketMessage.data);
 
         if (messageBody.type === 'message') {
             console.log('Message received', messageBody);
+
+            if (messageBody.sender === messagingUser || messageBody.to === messagingUser) {
+                const messagesContainer = document.getElementById('messages');
+                const fromSelf = messageBody.sender !== messagingUser;
+
+                var divElement = document.createElement('div');
+                divElement.className = `flex flex-col gap-1 ${fromSelf ? 'pl-3 text-end' : 'pr-3'}`;
+
+                var spanElement = document.createElement('span');
+                spanElement.className = 'opacity-60 font-light';
+                spanElement.textContent = `@${messageBody.sender}`;
+
+                var divMessageElement = document.createElement('div');
+                divMessageElement.textContent = messageBody.message;
+
+                divElement.appendChild(spanElement);
+                divElement.appendChild(divMessageElement);
+
+                messagesContainer.appendChild(divElement);
+            }
+
         }
 
         if (messageBody.type === 'connections') {
@@ -109,9 +118,7 @@ function escapeHtml(unsafe) {
                 const connectionsContainer = document.getElementById('connections');
                 const connectionDiv = document.createElement('div');
 
-                const sanitizedUsername = escapeHtml(connection.username);
-
-                connectionDiv.setAttribute('title', `${sanitizedUsername} | ${connection.online ? 'Online' : 'Offline'}`);
+                connectionDiv.setAttribute('title', `${connection.username} | ${connection.online ? 'Online' : 'Offline'}`);
                 connectionDiv.classList.add('cursor-pointer', 'relative');
 
                 const imgElement = document.createElement('img');
@@ -121,10 +128,21 @@ function escapeHtml(unsafe) {
                 const statusDiv = document.createElement('div');
                 statusDiv.classList.add('bg-' + (connection.online ? 'green-400' : 'red-400'), 'border-4', 'border-bg', 'w-4', 'h-4', 'rounded-full', 'absolute', 'bottom-[-4px]', 'right-[-4px]');
 
+                
                 connectionDiv.appendChild(imgElement);
                 connectionDiv.appendChild(statusDiv);
+
+                connectionDiv.onclick = () => {
+                    console.log('clicked', connection.id);
+                    document.getElementById('user-messaging').innerText = `@${connection.username} `;
+                    messagingUser = connection.id;
+
+                    if (document.getElementById('send').attributes.getNamedItem('disabled') !== null) {
+                        document.getElementById('send').attributes.removeNamedItem('disabled');
+                    }
+                };
+
                 connectionsContainer.appendChild(connectionDiv);
-                
             }
 
         }
@@ -133,34 +151,38 @@ function escapeHtml(unsafe) {
             const users = messageBody.users;
             console.log('users', users);
 
-            // clear previous results
             document.getElementById('search-user-results').innerHTML = '';
 
             if (users.length === 0) {
-                const connectionsContainer = document.getElementById('search-user-results');
-                const connectionDiv = document.createElement('div');
-                connectionDiv.classList.add('text-center', 'w-full', 'opacity-60');
-                connectionDiv.innerText = 'No users found';
-                connectionsContainer.appendChild(connectionDiv);
+                const searchsContainer = document.getElementById('search-user-results');
+                const searchDiv = document.createElement('div');
+                searchDiv.classList.add('text-center', 'w-full', 'opacity-60');
+                searchDiv.innerText = 'No users found';
+                searchsContainer.appendChild(searchDiv);
             }
 
             for (let i = 0; i < users.length; i++) {
                 const user = users[i];
 
-                const connectionsContainer = document.getElementById('search-user-results');
-                const connectionDiv = document.createElement('div');
+                const searchsContainer = document.getElementById('search-user-results');
+                const searchDiv = document.createElement('div');
 
                 const sanitizedUsername = escapeHtml(user.username);
 
-                connectionDiv.setAttribute('title', `${sanitizedUsername}`);
-                connectionDiv.classList.add('cursor-pointer', 'relative');
+                searchDiv.setAttribute('title', `${sanitizedUsername}`);
+                searchDiv.classList.add('cursor-pointer', 'relative');
 
                 const imgElement = document.createElement('img');
                 imgElement.classList.add('w-7', 'h-7', 'rounded-full');
                 imgElement.src = `https://avatars.githubusercontent.com/u/${user.id}?v=4`;
 
-                connectionDiv.appendChild(imgElement);
-                connectionsContainer.appendChild(connectionDiv);
+                searchDiv.appendChild(imgElement);
+
+                searchDiv.onclick = () => {
+                    console.log('clicked', user.id);
+                };
+
+                searchsContainer.appendChild(searchDiv);
                 
             }
 
@@ -173,17 +195,4 @@ function escapeHtml(unsafe) {
 
     };
     
-    async function connectToServer() {
-        const ws = new WebSocket('ws://localhost:7071/ws');
-        return new Promise((resolve, reject) => {
-            const timer = setInterval(() => {
-                if(ws.readyState === 1) {
-                    clearInterval(timer);
-                    resolve(ws);
-                }
-            }, 10);
-        });
-    }
-
 })();
-

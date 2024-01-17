@@ -13,8 +13,8 @@ export class panelProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private _doc?: vscode.TextDocument;
 
-    constructor(private readonly _extensionUri: vscode.Uri, private readonly githubClient:string, private readonly globalState:vscode.Memento) { }
- 
+    constructor(private readonly _extensionUri: vscode.Uri, private readonly githubClient:string, private readonly globalState:vscode.Memento, private readonly webSocketUrl:string) { }
+
     public resolveWebviewView(webviewView: vscode.WebviewView) {
         this._view = webviewView;
 
@@ -68,7 +68,7 @@ export class panelProvider implements vscode.WebviewViewProvider {
 
         const loggedInHtml = `
             <div class="flex flex-col h-full gap-3">
-                <div class="grow">
+                <div>
                     <div class="flex flex-col gap-3 pb-4 border-b border-vs">
                         <div>
                             <form class="relative" id="search-user">
@@ -101,10 +101,17 @@ export class panelProvider implements vscode.WebviewViewProvider {
 
                     </div>
                 </div>
-                <div class="h-fit">
-                    <form class="relative" id="message">
+                <div class="h-full flex flex-col gap-3">
+                    <div class="grow flex flex-col">
+                        <div class="grow pb-3 h-10">
+                            <div class="flex flex-col gap-4 h-full overflow-y-auto pr-2" id="messages">
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <form class="relative h-fit" id="message">
                         <label for="send" class="sr-only"> Send Message </label>
-                        <input disabled type="text" id="send" placeholder="Enter message" class="w-full rounded-md !py-2.5 !px-3 shadow-sm"/>
+                        <input disabled type="text" id="send" placeholder="Enter message" class="w-full rounded-md !py-2.5 !p-[35px] !pl-3 shadow-sm"/>
                         <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">
                             <button type="submit" class="hover:!bg-transparent">
                                 <span class="sr-only">Send</span>
@@ -112,6 +119,9 @@ export class panelProvider implements vscode.WebviewViewProvider {
                             </button>
                         </span>
                     </form>
+                    <span class="opacity-60 underline">
+                            Chatting with <span id="user-messaging">Click a user to message</span>
+                        </span>
                 </div>
             </div>
         `;
@@ -125,7 +135,12 @@ export class panelProvider implements vscode.WebviewViewProvider {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <link nonce="${nonce}" href="${styleVSCodeUri}" rel="stylesheet">
                     <link nonce="${nonce}" href="${styleMain}" rel="stylesheet">
-                    ${this.globalState.get('user') === undefined ? '' : `<script nonce="${nonce}">const tsvscode = acquireVsCodeApi(); const session = "${(this.globalState.get('user') as user).sessionToken}";</script>` }
+                    ${this.globalState.get('user') === undefined ? '' : `
+                    <script nonce="${nonce}">
+                        const tsvscode = acquireVsCodeApi(); 
+                        const session = "${(this.globalState.get('user') as user).sessionToken}";
+                        const webSocketUrl = "${this.webSocketUrl}";
+                    </script>` }
                     ${this.globalState.get('user') === undefined ? '' : `<script nonce="${nonce}" src="${scriptUri}"></script>`}
                 </head>
 

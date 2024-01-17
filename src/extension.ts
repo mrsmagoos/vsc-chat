@@ -3,6 +3,7 @@ import { panelProvider } from './panel';
 
 const githubClient:string = '912edb61a73a1b6553dc';
 const serverUrl:string = 'http://localhost:3000';
+const webSocketUrl:string = 'ws://localhost:7071';
 
 interface authenticationResponse {
     success: boolean
@@ -42,7 +43,7 @@ export async function activate(context: vscode.ExtensionContext) {
 		
 	}
 
-	const panel = new panelProvider(context.extensionUri, githubClient, context.globalState);
+	const panel = new panelProvider(context.extensionUri, githubClient, context.globalState, webSocketUrl);
 
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(

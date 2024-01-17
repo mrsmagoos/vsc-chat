@@ -120,8 +120,8 @@ export class panelProvider implements vscode.WebviewViewProvider {
                         </span>
                     </form>
                     <span class="opacity-60 underline">
-                            Chatting with <span id="user-messaging">Click a user to message</span>
-                        </span>
+                            <span id="user-messaging">Click a user to message</span>
+                    </span>
                 </div>
             </div>
         `;

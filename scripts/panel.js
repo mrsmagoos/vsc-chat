@@ -92,7 +92,7 @@ const handleSearchUserInput = (evt) => {
 
                 var spanElement = document.createElement('span');
                 spanElement.className = 'opacity-60 font-light';
-                spanElement.textContent = `@${messageBody.sender}`;
+                spanElement.textContent = `@${messageBody.senderUsername}`;
 
                 var divMessageElement = document.createElement('div');
                 divMessageElement.textContent = messageBody.message;
@@ -101,6 +101,7 @@ const handleSearchUserInput = (evt) => {
                 divElement.appendChild(divMessageElement);
 
                 messagesContainer.appendChild(divElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
 
         }
@@ -134,7 +135,7 @@ const handleSearchUserInput = (evt) => {
 
                 connectionDiv.onclick = () => {
                     console.log('clicked', connection.id);
-                    document.getElementById('user-messaging').innerText = `@${connection.username} `;
+                    document.getElementById('user-messaging').innerText = `Chatting with @${connection.username} `;
                     messagingUser = connection.id;
 
                     if (document.getElementById('send').attributes.getNamedItem('disabled') !== null) {

@@ -1,5 +1,14 @@
 import * as vscode from "vscode";
 
+interface user {
+    id: number
+    name: string
+    username: string
+    token: string
+    pfp: string
+    sessionToken: string
+}
+
 export class panelProvider implements vscode.WebviewViewProvider {
     private _view?: vscode.WebviewView;
     private _doc?: vscode.TextDocument;
@@ -29,7 +38,6 @@ export class panelProvider implements vscode.WebviewViewProvider {
                 }
             }
         });
- 
     }
 
     public reloadWebview() {
@@ -59,28 +67,48 @@ export class panelProvider implements vscode.WebviewViewProvider {
         `;
 
         const loggedInHtml = `
-            <div>
-                <div>
-                    ${this.globalState.get('githubCode')} test
+            <div class="flex flex-col h-full gap-3">
+                <div class="grow">
+                    <div class="flex gap-2 pb-3 border-b border-vs" id="connections">
+                        
+                    </div>
+                </div>
+                <div class="h-fit">
+                    <form class="relative" id="message">
+                        <label for="Search" class="sr-only"> Search </label>
+
+                        <input
+                            type="text"
+                            placeholder="Enter message"
+                            class="w-full rounded-md !py-2.5 !px-3 shadow-sm sm:text-sm"
+                        />
+
+                        <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">
+                            <button type="submit" class="hover:!bg-transparent">
+                                <span class="sr-only">Search</span>
+                                <svg class="rotate-45 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                        </span>
+                    </form>
                 </div>
             </div>
         `;
 
         return `
             <!DOCTYPE html>
-			<html lang="en">
+			<html lang="en" class="h-full">
                 <head>
                     <meta charset="UTF-8">
                     <meta http-equiv="Content-Security-Policy" content="img-src https: data:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}';">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <link nonce="${nonce}" href="${styleVSCodeUri}" rel="stylesheet">
                     <link nonce="${nonce}" href="${styleMain}" rel="stylesheet">
-                    <script nonce="${nonce}">const tsvscode = acquireVsCodeApi();</script>
-                    ${this.globalState.get('githubCode') === undefined ? '' : `<script nonce="${nonce}" src="${scriptUri}"></script>`}
+                    ${this.globalState.get('user') === undefined ? '' : `<script nonce="${nonce}">const tsvscode = acquireVsCodeApi(); const session = "${(this.globalState.get('user') as user).sessionToken}";</script>` }
+                    ${this.globalState.get('user') === undefined ? '' : `<script nonce="${nonce}" src="${scriptUri}"></script>`}
                 </head>
 
-                <body class="h-[90vh] min-width-[240px] p-3">
-                    ${this.globalState.get('githubCode') === undefined ? loginHtml : loggedInHtml}
+                <body class="h-full min-width-[240px] p-3">
+                    ${this.globalState.get('user') === undefined ? loginHtml : loggedInHtml}
                 </body>
 			</html>
         `;

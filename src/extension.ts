@@ -4,7 +4,43 @@ import { panelProvider } from './panel';
 const githubClient:string = '912edb61a73a1b6553dc';
 const serverUrl:string = 'http://localhost:3000';
 
+interface authenticationResponse {
+    success: boolean
+	error?: string
+	user? : {
+		id: number
+		name: string
+		username: string
+		token: string
+		pfp: string
+		sessionToken: string
+	}
+
+}
+
 export async function activate(context: vscode.ExtensionContext) {
+
+	if (await context.globalState.get(`user`) !== undefined) {
+		const user = await context.globalState.get(`user`) as authenticationResponse['user'];
+		const response = await fetch(`${serverUrl}/authenticate`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				session: user?.sessionToken || 'notoken'
+			})
+		});
+		const authJson = await response.json() as authenticationResponse;
+		if (authJson.success === false) {
+			await context.globalState.update(`user`, undefined);
+			vscode.window.showErrorMessage(authJson?.error || 'Unknown error occured');
+		} else {
+			await context.globalState.update(`user`, authJson.user);
+			vscode.window.showInformationMessage(`Welcome ${authJson.user?.name}, you are now logged in as ${authJson.user?.username}`);
+		}
+		
+	}
 
 	const panel = new panelProvider(context.extensionUri, githubClient, context.globalState);
 
@@ -20,10 +56,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			handleUri: async (uri: vscode.Uri) => {		
 				const queryParams = new URLSearchParams(uri.query);
 				if (queryParams.has('code')) {
-					await context.globalState.update(`githubCode`, queryParams.get('code'));
-					vscode.window.showInformationMessage(`URI Handler says: ${queryParams.get('code') as string}`);
-					panel.reloadWebview();
-
+					
 					const response = await fetch(`${serverUrl}/authenticate`, {
 						method: 'POST',
 						headers: {
@@ -34,13 +67,23 @@ export async function activate(context: vscode.ExtensionContext) {
 						})
 					});
 
+					const authJson = await response.json() as authenticationResponse;
+
+					if (authJson.success === false) {
+						vscode.window.showErrorMessage(authJson?.error || 'Unknown error occured');
+						return;
+					}
+
+					await context.globalState.update(`user`, authJson.user);
+					vscode.window.showInformationMessage(`Welcome ${authJson.user?.name}, you are now logged in as ${authJson.user?.username}`);
+					panel.reloadWebview();
 				}
 			}
 		})
 	);
 
 	vscode.commands.registerCommand('vsc-chat.logout', async () => {
-		await context.globalState.update(`githubCode`, undefined);
+		await context.globalState.update(`user`, undefined);
 		panel.reloadWebview();
 	});
 

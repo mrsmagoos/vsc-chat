@@ -61,7 +61,7 @@ button:hover {
 }
 
 button:focus {
-	outline-color: var(--vscode-focusBorder);
+	outline-color: var(--vscode-focusBroder);
 }
 
 button.secondary {
@@ -86,6 +86,11 @@ textarea {
 }
 
 input::placeholder,
-textarea::placeholder {
-	color: var(--vscode-input-placeholderForeground);
+textarea::placeholder,
+.input-colors  {
+	color: var(--vscode-input-placeholderForeground) !important;
+}
+
+.border-vs {
+	border-color: var(--vscode-focusBorder);
 }

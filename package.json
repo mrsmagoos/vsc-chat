@@ -18,21 +18,41 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "vsc-chat-sidebar-view",
+          "id": "vsc-chat-panel-view",
           "title": "VSC Chat",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "vsc-chat-sidebar-view": [
+      "vsc-chat-panel-view": [
         {
           "type": "webview",
-          "id": "vsc-chat.sidebar",
+          "id": "vsc-chat.panel",
           "name": "VSC Chat",
           "icon": "media/icon.svg",
           "contextualTitle": "VSC Chat",
-          "webviewId": "vsc-chat-sidebar-view"
+          "webviewId": "vsc-chat-panel-view"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "vsc-chat.logout",
+        "title": "Logout",
+        "category": "VSC Chat",
+        "icon":  {
+          "dark": "media/dark/log-out.svg",
+          "light": "media/light/log-out.svg"
+        }
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "vsc-chat.logout",
+          "when": "view == vsc-chat.panel",
+          "group": "navigation"
         }
       ]
     }

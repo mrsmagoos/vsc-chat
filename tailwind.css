@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@media (max-width: 215px) {
+    .login-icon {
+        display: none;
+    }
+}

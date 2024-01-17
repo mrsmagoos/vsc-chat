@@ -1,11 +1,11 @@
-const escapeHtml = unsafe => unsafe.replace(/[&<"']/g, match => ({'&': '&amp;', '<': '&lt;', '"': '&quot;', "'": '&#39;'}[match]));
+const escapeHtml = unsafe => unsafe.replace(/[&<"']/g, match => ({ '&': '&amp;', '<': '&lt;', '"': '&quot;', "'": '&#39;' }[match]));
 let messagingUser;
 
 const connectToServer = async () => {
     const ws = new WebSocket(`${webSocketUrl}/ws`);
     return new Promise((resolve) => {
         const timer = setInterval(() => {
-            if(ws.readyState === 1) {
+            if (ws.readyState === 1) {
                 clearInterval(timer);
                 resolve(ws);
             }
@@ -65,7 +65,7 @@ const handleSearchUserInput = (evt) => {
     toggleVisibility('clear-search', 'hidden', 'add');
 };
 
-(async function() {
+(async function () {
     const ws = await connectToServer();
     sendMessage(ws, 'command', 'getconnections');
 
@@ -79,7 +79,7 @@ const handleSearchUserInput = (evt) => {
     setInterval(() => {
         sendMessage(ws, 'command', 'getconnections');
     }, 10000);
-    
+
     ws.onmessage = (webSocketMessage) => {
         const messageBody = JSON.parse(webSocketMessage.data);
 
@@ -134,7 +134,7 @@ const handleSearchUserInput = (evt) => {
                 const statusDiv = document.createElement('div');
                 statusDiv.classList.add('bg-' + (connection.online ? 'green-400' : 'red-400'), 'border-4', 'border-bg', 'w-4', 'h-4', 'rounded-full', 'absolute', 'bottom-[-4px]', 'right-[-4px]');
 
-                
+
                 connectionDiv.appendChild(imgElement);
                 connectionDiv.appendChild(statusDiv);
 
@@ -150,6 +150,13 @@ const handleSearchUserInput = (evt) => {
                 };
 
                 connectionsContainer.appendChild(connectionDiv);
+            }
+
+            if (connections.length !== 0) {
+                document.getElementById('connections').classList.remove('hidden');
+                document.getElementById('connections').classList.add('flex');
+                document.getElementById('connections-label').classList.remove('hidden');
+                document.getElementById('connections-label').classList.add('flex');
             }
 
         }
@@ -196,7 +203,7 @@ const handleSearchUserInput = (evt) => {
                 };
 
                 searchsContainer.appendChild(searchDiv);
-                
+
             }
 
             document.getElementById('search-user-results').classList.remove('hidden');
@@ -207,5 +214,5 @@ const handleSearchUserInput = (evt) => {
         }
 
     };
-    
+
 })();

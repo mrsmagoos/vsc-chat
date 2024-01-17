@@ -90,14 +90,14 @@ export class panelProvider implements vscode.WebviewViewProvider {
                         <span class="hidden items-center opacity-60" id="search-user-label">
                             <span class="pr-4">Search results</span>
                         </span>
-                        <div id="search-user-results" class="hidden gap-2 flex-wrap">
-                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
-                        </div>
 
-                        <span class="flex items-center opacity-60" id="connections-label">
+                        <div id="search-user-results" class="hidden gap-2 flex-wrap"></div>
+
+                        <span class="hidden items-center opacity-60" id="connections-label">
                             <span class="pr-4">Recent connections</span>
                         </span>
-                        <div class="flex gap-2 flex-wrap" id="connections"></div>
+
+                        <div class="hidden gap-2 flex-wrap" id="connections"></div>
 
                     </div>
                 </div>

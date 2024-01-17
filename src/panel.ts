@@ -69,7 +69,7 @@ export class panelProvider implements vscode.WebviewViewProvider {
         const loggedInHtml = `
             <div class="flex flex-col h-full gap-3">
                 <div class="grow">
-                    <div class="flex gap-2 pb-3 border-b border-vs" id="connections">
+                    <div class="flex gap-2 pb-3 border-b border-vs flex-wrap" id="connections">
                         
                     </div>
                 </div>
@@ -80,7 +80,7 @@ export class panelProvider implements vscode.WebviewViewProvider {
                         <input
                             type="text"
                             placeholder="Enter message"
-                            class="w-full rounded-md !py-2.5 !px-3 shadow-sm sm:text-sm"
+                            class="w-full rounded-md !py-2.5 !px-3 shadow-sm"
                         />
 
                         <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">

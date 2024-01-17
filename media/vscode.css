@@ -94,3 +94,15 @@ textarea::placeholder,
 .border-vs {
 	border-color: var(--vscode-focusBorder);
 }
+
+.border-bg {
+	border-color: var(--vscode-editor-background);
+}
+
+.bg-vscode {
+	background-color: var(--vscode-input-background);
+}
+
+.text-vscode {
+	color: var(--vscode-input-placeholderForeground);
+}

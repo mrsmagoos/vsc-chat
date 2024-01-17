@@ -69,23 +69,45 @@ export class panelProvider implements vscode.WebviewViewProvider {
         const loggedInHtml = `
             <div class="flex flex-col h-full gap-3">
                 <div class="grow">
-                    <div class="flex gap-2 pb-3 border-b border-vs flex-wrap" id="connections">
-                        
+                    <div class="flex flex-col gap-3 pb-4 border-b border-vs">
+                        <div>
+                            <form class="relative" id="search-user">
+                                <label for="Search" class="sr-only"> Search </label>
+                                <input type="text" id="search-user-input" placeholder="Search user" class="w-full rounded-md !py-2.5 !px-3 shadow-sm"/>
+                                <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">
+                                    <button id="search-button" type="submit" class="hover:!bg-transparent">
+                                        <span class="sr-only">Search</span>
+                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                    </button>
+                                    <button id="clear-search" type="button" class="hover:!bg-transparent hidden">
+                                        <span class="sr-only">Clear</span>
+                                        <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                                    </button>
+                                </span>
+                            </form>
+                        </div>
+
+                        <span class="hidden items-center opacity-60" id="search-user-label">
+                            <span class="pr-4">Search results</span>
+                        </span>
+                        <div id="search-user-results" class="hidden gap-2 flex-wrap">
+                            <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+                        </div>
+
+                        <span class="flex items-center opacity-60" id="connections-label">
+                            <span class="pr-4">Recent connections</span>
+                        </span>
+                        <div class="flex gap-2 flex-wrap" id="connections"></div>
+
                     </div>
                 </div>
                 <div class="h-fit">
                     <form class="relative" id="message">
-                        <label for="Search" class="sr-only"> Search </label>
-
-                        <input
-                            type="text"
-                            placeholder="Enter message"
-                            class="w-full rounded-md !py-2.5 !px-3 shadow-sm"
-                        />
-
+                        <label for="send" class="sr-only"> Send Message </label>
+                        <input disabled type="text" id="send" placeholder="Enter message" class="w-full rounded-md !py-2.5 !px-3 shadow-sm"/>
                         <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">
                             <button type="submit" class="hover:!bg-transparent">
-                                <span class="sr-only">Search</span>
+                                <span class="sr-only">Send</span>
                                 <svg class="rotate-45 h-4 w-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
                             </button>
                         </span>

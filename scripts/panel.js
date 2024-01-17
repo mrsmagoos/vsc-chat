@@ -33,6 +33,62 @@ function escapeHtml(unsafe) {
         }
     };
 
+    document.getElementById('search-user').onsubmit = (evt) => {
+        evt.preventDefault();
+        const input = evt.target.querySelector('input');
+
+        if (input.value.trim() !== '') {
+            const messageBody = {
+                'type': 'search-user',
+                'message': input.value.trim(),
+                'session': session
+            };
+            input.value = '';
+
+            document.getElementById('search-user-results').classList.remove('hidden');
+            document.getElementById('search-user-results').classList.add('flex');
+
+            document.getElementById('search-user-label').classList.remove('hidden');
+            document.getElementById('search-user-label').classList.add('flex');
+
+            document.getElementById('search-button').classList.add('hidden');
+            document.getElementById('clear-search').classList.remove('hidden');
+
+            ws.send(JSON.stringify(messageBody));
+        }
+    };
+
+    document.getElementById('clear-search').onclick = (evt) => {
+        evt.preventDefault();
+
+        document.getElementById('search-user-results').innerHTML = '';
+
+        document.getElementById('search-user-results').classList.remove('flex');
+        document.getElementById('search-user-results').classList.add('hidden');
+
+        document.getElementById('search-user-label').classList.remove('flex');
+        document.getElementById('search-user-label').classList.add('hidden');
+
+        document.getElementById('search-button').classList.remove('hidden');
+        document.getElementById('clear-search').classList.add('hidden');
+    }
+
+    document.getElementById('search-user-input').onfocus = (evt) => {
+        document.getElementById('search-button').classList.remove('hidden');
+        document.getElementById('clear-search').classList.add('hidden');
+    }
+
+    document.getElementById('search-user-input').onkeydown = (evt) => {
+        document.getElementById('search-button').classList.remove('hidden');
+        document.getElementById('clear-search').classList.add('hidden');
+    }
+
+    document.getElementById('search-user-input').onclick = (evt) => {
+        document.getElementById('search-button').classList.remove('hidden');
+        document.getElementById('clear-search').classList.add('hidden');
+    }
+    
+
     ws.onmessage = (webSocketMessage) => {
         const messageBody = JSON.parse(webSocketMessage.data);
 
@@ -67,18 +123,51 @@ function escapeHtml(unsafe) {
 
                 connectionDiv.appendChild(imgElement);
                 connectionDiv.appendChild(statusDiv);
-
                 connectionsContainer.appendChild(connectionDiv);
                 
             }
 
-            document.getElementById('connections').innerHTML += `
-            <div title="Add connection" class="cursor-pointer relative">
-                <div class="w-7 h-7 rounded-full bg-vscode text-vscode flex place-content-center place-items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                </div>
-            </div>
-            `;
+        }
+
+        if (messageBody.type === 'search-user') {
+            const users = messageBody.users;
+            console.log('users', users);
+
+            // clear previous results
+            document.getElementById('search-user-results').innerHTML = '';
+
+            if (users.length === 0) {
+                const connectionsContainer = document.getElementById('search-user-results');
+                const connectionDiv = document.createElement('div');
+                connectionDiv.classList.add('text-center', 'w-full', 'opacity-60');
+                connectionDiv.innerText = 'No users found';
+                connectionsContainer.appendChild(connectionDiv);
+            }
+
+            for (let i = 0; i < users.length; i++) {
+                const user = users[i];
+
+                const connectionsContainer = document.getElementById('search-user-results');
+                const connectionDiv = document.createElement('div');
+
+                const sanitizedUsername = escapeHtml(user.username);
+
+                connectionDiv.setAttribute('title', `${sanitizedUsername}`);
+                connectionDiv.classList.add('cursor-pointer', 'relative');
+
+                const imgElement = document.createElement('img');
+                imgElement.classList.add('w-7', 'h-7', 'rounded-full');
+                imgElement.src = `https://avatars.githubusercontent.com/u/${user.id}?v=4`;
+
+                connectionDiv.appendChild(imgElement);
+                connectionsContainer.appendChild(connectionDiv);
+                
+            }
+
+            document.getElementById('search-user-results').classList.remove('hidden');
+            document.getElementById('search-user-results').classList.add('flex');
+            document.getElementById('search-user-label').classList.remove('hidden');
+            document.getElementById('search-user-label').classList.add('flex');
 
         }
 

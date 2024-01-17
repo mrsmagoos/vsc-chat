@@ -181,6 +181,12 @@ const handleSearchUserInput = (evt) => {
 
                 searchDiv.onclick = () => {
                     console.log('clicked', user.id);
+                    document.getElementById('user-messaging').innerText = `Chatting with @${user.username} `;
+                    messagingUser = user.id;
+
+                    if (document.getElementById('send').attributes.getNamedItem('disabled') !== null) {
+                        document.getElementById('send').attributes.removeNamedItem('disabled');
+                    }
                 };
 
                 searchsContainer.appendChild(searchDiv);

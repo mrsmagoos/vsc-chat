@@ -111,7 +111,7 @@ export class panelProvider implements vscode.WebviewViewProvider {
                     </div>
                     <form class="relative h-fit" id="message">
                         <label for="send" class="sr-only"> Send Message </label>
-                        <input disabled type="text" id="send" placeholder="Enter message" class="w-full rounded-md !py-2.5 !p-[35px] !pl-3 shadow-sm"/>
+                        <input disabled type="text" id="send" placeholder="Click a user to message" class="w-full rounded-md !py-2.5 !p-[35px] !pl-3 shadow-sm"/>
                         <span class="input-colors absolute inset-y-0 end-0 grid w-10 place-content-center">
                             <button type="submit" class="hover:!bg-transparent">
                                 <span class="sr-only">Send</span>
@@ -119,9 +119,6 @@ export class panelProvider implements vscode.WebviewViewProvider {
                             </button>
                         </span>
                     </form>
-                    <span class="opacity-60 underline">
-                            <span id="user-messaging">Click a user to message</span>
-                    </span>
                 </div>
             </div>
         `;

@@ -76,6 +76,9 @@ const handleSearchUserInput = (evt) => {
     document.getElementById('search-user-input').onkeydown = handleSearchUserInput;
     document.getElementById('search-user-input').onclick = handleSearchUserInput;
 
+    setInterval(() => {
+        sendMessage(ws, 'command', 'getconnections');
+    }, 10000);
     
     ws.onmessage = (webSocketMessage) => {
         const messageBody = JSON.parse(webSocketMessage.data);
@@ -110,6 +113,8 @@ const handleSearchUserInput = (evt) => {
             const connections = messageBody.connections;
             console.log('connections', connections);
 
+            document.getElementById('connections').innerHTML = '';
+
             for (let i = 0; i < connections.length; i++) {
                 const connection = connections[i];
 
@@ -135,7 +140,8 @@ const handleSearchUserInput = (evt) => {
 
                 connectionDiv.onclick = () => {
                     console.log('clicked', connection.id);
-                    document.getElementById('user-messaging').innerText = `Chatting with @${connection.username} `;
+                    document.getElementById('send').placeholder = `Send message to @${connection.username}`;
+
                     messagingUser = connection.id;
 
                     if (document.getElementById('send').attributes.getNamedItem('disabled') !== null) {
@@ -181,7 +187,7 @@ const handleSearchUserInput = (evt) => {
 
                 searchDiv.onclick = () => {
                     console.log('clicked', user.id);
-                    document.getElementById('user-messaging').innerText = `Chatting with @${user.username} `;
+                    document.getElementById('send').placeholder = `Send message to @${user.username}`;
                     messagingUser = user.id;
 
                     if (document.getElementById('send').attributes.getNamedItem('disabled') !== null) {

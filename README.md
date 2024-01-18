@@ -1,4 +1,4 @@
-# vsc-chat README
+# Messaging for Visual Studio Code
 
 This is the README for your extension "vsc-chat". After writing up a brief description, we recommend including the following sections.
 
